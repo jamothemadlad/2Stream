@@ -1,0 +1,2 @@
+# Unified patch files contain intentional spaces on empty context lines.
+provenance/*.diff -whitespace

@@ -1,0 +1,12 @@
+{
+  "original_source_sha256": {
+    "ValidateGrowth.py": "c3767ac3dca839a4a271417b35fc4e38f7e847a30a8e56ddae8906a7162ec5db",
+    "plot_Efield.py": "b457626c5529fa41f9426da02485c6285557ed2652b079981ea558bd9c7a9cc8",
+    "plot_electron.py": "53289418f5ae132ac9572072677ac4e10904f44d2db937c6905aedb7e2322d19",
+    "CompareSeeds.py": "a5f7aa89fc0c568c40a4a2ed108afbd65a92459360cb6038ce2015967feb0a1d",
+    "run_seeds.sh": "9320d7d17f7b0702b8faf8ade3d0ffdf9ff86cd3999aae3b0d7e8927002b9563",
+    "TwoBeams.py": "5aa31f03dab8c5461ff57166a4f7f621f9e780fa036f5868c0517f5d1bbe3eda"
+  },
+  "physics_PICMI_calls_unchanged": true,
+  "qualification": "Current source hashes; the original five runs did not archive complete per-run input decks."
+}

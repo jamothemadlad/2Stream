@@ -1,0 +1,60 @@
+{
+  "verification_date": "2026-11-20",
+  "platform": "macOS ARM64; Python 3.12.15",
+  "analysis_environment": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "matplotlib": "3.10.7",
+    "scikit-learn": "1.7.2"
+  },
+  "notebook": {
+    "status": "passed",
+    "code_cells_executed": 6,
+    "seconds": 31.421506000013324,
+    "kernel": "isolated Python 3.12 environment",
+    "cloud_colab_executed": false
+  },
+  "analysis_cli": {
+    "status": "passed",
+    "command": "python run_analysis.py"
+  },
+  "plotting_scripts": {
+    "status": "passed",
+    "commands": [
+      "python CompareSeeds.py",
+      "python plot_electron.py --seeds 1 2 --snapshots 6",
+      "python plot_Efield.py --seed 1",
+      "python ValidateGrowth.py --seed 1"
+    ]
+  },
+  "scientific_unit_tests": {
+    "status": "passed",
+    "tests": 5,
+    "command": "python -m pytest -q"
+  },
+  "raw_conversion_subset": {
+    "status": "passed",
+    "raw_snapshots_converted": 3,
+    "raw_files_verified_against_audit": 6,
+    "external_output_directory_supported": true,
+    "packaged_manifest_unchanged": true
+  },
+  "simulation_smoke_test": {
+    "status": "passed",
+    "seed": 101,
+    "steps": 10,
+    "pywarpx": "26.10",
+    "recorded_warnings": 0,
+    "original_five_runs_rerun": false,
+    "command": "python scripts/run_seeds.py --python /path/to/warpx-environment/bin/python --seeds 101 --steps 10 --output-root /path/to/fresh-directory"
+  },
+  "preservation": {
+    "source_hashes_unchanged": 18,
+    "raw_file_inventory_unchanged": 2050,
+    "picmi_constructor_calls_identical": 13
+  },
+  "packaged_processed_bytes": 15514286,
+  "raw_particle_and_field_files_hash_verified_against_original_audit": 2010,
+  "processed_checksum_verification": "all five included NPZ files match data/manifest.json",
+  "result_qualification": "The initial models underperform persistence and ballistic transport; this verifies execution, not scientific adequacy or convergence."
+}

@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.matplotlib_cache/
+.DS_Store
+seed_runs/
+runs/
+diags/
+diags_backup_*/
+Backtrace.*
+warpx_used_inputs
+outputs/
+work/
+*.log

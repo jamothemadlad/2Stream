@@ -1,0 +1,76 @@
+{
+  "scope": "Original data-integrity audit; not a fresh convergence study",
+  "qualification": [
+    "Full per-run native inputs/source not archived.",
+    "openPMD dt=1.0 is not physical dt; actual timestamps verified.",
+    "openPMD boundary labels conflict with periodic current script/latest inputs.",
+    "Energy drift measured, not a completed convergence/physics validation."
+  ],
+  "runs": [
+    {
+      "seed": 1,
+      "integrity_pass": true,
+      "particle_snapshots": 201,
+      "field_snapshots": 201,
+      "maximum_total_energy_relative_drift": 0.0013055671908724688,
+      "electric_field_energy_relative_difference_to_peak": 7.103138921996244e-16,
+      "recorded_config_matches_seed1": true,
+      "standard_reader_check": {
+        "seed": 1,
+        "pass": true
+      }
+    },
+    {
+      "seed": 2,
+      "integrity_pass": true,
+      "particle_snapshots": 201,
+      "field_snapshots": 201,
+      "maximum_total_energy_relative_drift": 0.001179188628246592,
+      "electric_field_energy_relative_difference_to_peak": 6.397903230406934e-16,
+      "recorded_config_matches_seed1": true,
+      "standard_reader_check": {
+        "seed": 2,
+        "pass": true
+      }
+    },
+    {
+      "seed": 3,
+      "integrity_pass": true,
+      "particle_snapshots": 201,
+      "field_snapshots": 201,
+      "maximum_total_energy_relative_drift": 0.001022861584636232,
+      "electric_field_energy_relative_difference_to_peak": 7.726405689092097e-16,
+      "recorded_config_matches_seed1": true,
+      "standard_reader_check": {
+        "seed": 3,
+        "pass": true
+      }
+    },
+    {
+      "seed": 4,
+      "integrity_pass": true,
+      "particle_snapshots": 201,
+      "field_snapshots": 201,
+      "maximum_total_energy_relative_drift": 0.0009549516549724678,
+      "electric_field_energy_relative_difference_to_peak": 9.844990629343412e-16,
+      "recorded_config_matches_seed1": true,
+      "standard_reader_check": {
+        "seed": 4,
+        "pass": true
+      }
+    },
+    {
+      "seed": 5,
+      "integrity_pass": true,
+      "particle_snapshots": 201,
+      "field_snapshots": 201,
+      "maximum_total_energy_relative_drift": 0.0011362716968061585,
+      "electric_field_energy_relative_difference_to_peak": 7.487067026490924e-16,
+      "recorded_config_matches_seed1": true,
+      "standard_reader_check": {
+        "seed": 5,
+        "pass": true
+      }
+    }
+  ]
+}
