@@ -1,41 +1,119 @@
-"""Plot the included physical position-velocity maps; raw particle files are not needed."""
-import argparse
+
 from pathlib import Path
 import os
-ROOT=Path(__file__).resolve().parent
-os.environ.setdefault('MPLCONFIGDIR',str(ROOT/'.matplotlib_cache'))
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
-from twostream.forecast import load_runs
+import matplotlib.pyplot as plt
+from openpmd_viewer import OpenPMDTimeSeries
 
+# Project directory
+folder = Path(__file__).resolve().parent
+data_root = Path(os.environ.get("TWOSTREAM_DATA_ROOT", folder)).resolve()
 
-def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--data',type=Path,default=ROOT/'data/processed')
-    p.add_argument('--seeds',type=int,nargs='+',default=[1,2])
-    p.add_argument('--snapshots',type=int,default=6)
-    p.add_argument('--output',type=Path,default=ROOT/'outputs')
-    args=p.parse_args()
-    if args.snapshots<1:p.error('--snapshots must be positive')
-    args.output.mkdir(parents=True,exist_ok=True)
-    for seed,run in load_runs(args.data).items():
-        if seed not in args.seeds:continue
-        indices=np.unique(np.linspace(0,len(run['times_s'])-1,min(args.snapshots,len(run['times_s'])),dtype=int))
-        fig,axes=plt.subplots(2,len(indices),figsize=(3.2*len(indices),6),sharex=True,sharey=True,squeeze=False)
-        extent=[*run['z_edges_m'][[0,-1]],*run['velocity_edges_over_c'][[0,-1]]]
-        for row in [0,1]:
-            vmax=float(run['phase_mass'][indices,row].max())
-            for column,index in enumerate(indices):
-                axes[row,column].imshow(run['phase_mass'][index,row].T,origin='lower',extent=extent,
-                                       aspect='auto',cmap='viridis',vmin=0,vmax=vmax)
-                axes[row,column].set_title(f"Step {run['iterations'][index]}")
-                axes[row,column].set_xlabel('Position z (m)')
-            axes[row,0].set_ylabel(f"{run['species'][row]}\nPhysical velocity / c")
-        fig.suptitle(f'Seed {seed}: weighted position-velocity maps')
-        fig.tight_layout();file=args.output/f'phase_space_seed_{seed}.png'
-        fig.savefig(file,dpi=150);plt.close(fig);print('Saved:',file.resolve())
+# Seeds to plot
+seeds = [1, 2]
 
+# 12 snapshots: 0, 1000, 2000, ..., 11000
+snapshot_targets = list(range(0, 11001, 1000))
 
-if __name__=='__main__':main()
+for seed in seeds:
+
+    run_dir = data_root / "seed_runs" / f"seed_{seed}"
+    diag_path = run_dir / "diags" / "electron_track"
+
+    if not diag_path.exists():
+        raise FileNotFoundError(f"Missing diagnostics: {diag_path}")
+
+    # Load WarpX particle diagnostics
+    ts = OpenPMDTimeSeries(
+        str(diag_path),
+        backend="openpmd-api",
+        check_all_files=False
+    )
+
+    # Select nearest available saved iterations
+    snapshots = [
+        int(ts.iterations[np.argmin(np.abs(ts.iterations - target))])
+        for target in snapshot_targets
+    ]
+
+    # Create 4 x 3 figure
+    fig, axes = plt.subplots(
+        4, 3,
+        figsize=(16, 16),
+        sharex=True,
+        sharey=True
+    )
+
+    axes = axes.flatten()
+
+    for ax, iteration in zip(axes, snapshots):
+
+        # Left electron stream
+        z_left, uz_left = ts.get_particle(
+            ["z", "uz"],
+            species="left_beam",
+            iteration=iteration
+        )
+
+        # Right electron stream
+        z_right, uz_right = ts.get_particle(
+            ["z", "uz"],
+            species="right_beam",
+            iteration=iteration
+        )
+
+        # Plot left stream
+        ax.scatter(
+            z_left,
+            uz_left,
+            s=0.5,
+            alpha=0.3,
+            color="royalblue",
+            label="Left stream"
+        )
+
+        # Plot right stream
+        ax.scatter(
+            z_right,
+            uz_right,
+            s=0.5,
+            alpha=0.3,
+            color="darkorange",
+            label="Right stream"
+        )
+
+        ax.set_title(f"Iteration {iteration}")
+        ax.set_ylim(-0.5, 0.5)
+        ax.grid(True, alpha=0.2)
+
+    # Shared axis labels
+    fig.supxlabel("z position (m)", fontsize=13)
+    fig.supylabel(r"$p_z/(m_e c)$", fontsize=13)
+
+    fig.suptitle(
+        f"Two-Stream Instability — Seed {seed}",
+        fontsize=17
+    )
+
+    # Shared legend
+    handles, labels = axes[0].get_legend_handles_labels()
+
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        ncol=2,
+        bbox_to_anchor=(0.5, 0.965)
+    )
+
+    fig.tight_layout(rect=[0.02, 0.02, 0.98, 0.94])
+
+    # Save each figure inside its seed folder
+    output = run_dir / f"phase_space_seed_{seed}.png"
+
+    plt.savefig(output, dpi=300)
+    plt.close(fig)
+
+    print(f"Saved: {output}")
+
+print("Both phase-space plots completed.")

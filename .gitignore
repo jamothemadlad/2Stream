@@ -1,16 +1,22 @@
-.venv/
+# Python
 __pycache__/
 *.py[cod]
-.ipynb_checkpoints/
 .pytest_cache/
-.matplotlib_cache/
-.DS_Store
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# WarpX and plotting outputs
 seed_runs/
-runs/
 diags/
-diags_backup_*/
-Backtrace.*
-warpx_used_inputs
-outputs/
-work/
-*.log
+diags_backup_*
+backtrace*
+.matplotlib_cache/
+
+# Build and package caches
+build/
+dist/
+*.egg-info/

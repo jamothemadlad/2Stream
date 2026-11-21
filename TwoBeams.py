@@ -1,19 +1,3 @@
-"""Same two-stream physics as the reference deck, with configurable run paths."""
-import argparse
-from pathlib import Path
-
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--seed", type=int, default=1)
-parser.add_argument("--steps", type=int, default=10000)
-parser.add_argument("--output", type=Path)
-parser.add_argument("--archive-existing", action="store_true",
-                    help="Explicitly reuse a directory and archive its previous diagnostics")
-args = parser.parse_args()
-if args.steps < 1:
-    parser.error("--steps must be positive")
-seed = args.seed
-print(f"Running WarpX with seed {seed}", flush=True)
-
 from pywarpx import picmi
 from pywarpx.callbacks import callfromafterstep
 import numpy as np
@@ -23,14 +7,17 @@ import shutil
 import os
 from scipy.constants import c, e, m_e, epsilon_0
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--seed", type=int, default=1)
+args = parser.parse_args()
+
+seed = args.seed
+print(f"Running WarpX with seed {seed}")
 
 # Always run relative to the simulation script
-project_dir = (args.output if args.output is not None else
-               Path(__file__).resolve().parent / "runs" / f"seed_{seed}")
-project_dir = project_dir.expanduser().resolve()
-if project_dir.exists() and any(project_dir.iterdir()) and not args.archive_existing:
-    parser.error(f"Output already contains files: {project_dir}; choose a fresh directory")
-project_dir.mkdir(parents=True, exist_ok=True)
+project_dir = Path(__file__).resolve().parent
 os.chdir(project_dir)
 
 # Archive diagnostics from the previous run
@@ -47,8 +34,8 @@ print("Ready for fresh WarpX diagnostics")
 
 
 n0 = 1e15
-v0 = 0.1 * c
-v_th = 0.01 * c
+v0 = 0.1 * c 
+v_th = 0.01 * c 
 omega_pe = np.sqrt(n0 * e**2 / (epsilon_0 * m_e))
 L = 8 * np.pi * v0 / omega_pe
 
@@ -108,7 +95,7 @@ sim = picmi.Simulation(
     verbose = 0
 )
 
-layout = picmi.PseudoRandomLayout(
+layout = picmi.PseudoRandomLayout( 
     n_macroparticles_per_cell=200, #200 numerical macroparticles per stream, so 256 x 200 = 51200 macroparticles per strea.m.
     grid=grid
 )
@@ -171,25 +158,7 @@ if progress_file:
         if step % 100 == 0:
             Path(progress_file).write_text(str(step))
 
-sim.step(nsteps=args.steps)
+sim.step(nsteps=10000)
 
 if progress_file:
-    Path(progress_file).write_text(str(args.steps))
-
-# Archive the actual input source and environment for this newly generated run.
-import json
-import hashlib
-import importlib.metadata
-import sys
-shutil.copy2(Path(__file__).resolve(), project_dir / "input_script.py")
-metadata = {
-    "seed": seed, "steps": args.steps,
-    "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-    "python_version": sys.version,
-    "packages": {name: importlib.metadata.version(name)
-                 for name in ["pywarpx", "numpy", "scipy"]},
-    "input_parameters": {"n0_per_stream_m3": n0, "PICMI_drift_over_c": v0/c,
-                         "PICMI_thermal_over_c": v_th/c},
-}
-(project_dir / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
-print(f"Completed run: {project_dir}", flush=True)
+    Path(progress_file).write_text("10000")

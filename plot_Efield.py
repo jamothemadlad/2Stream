@@ -1,31 +1,48 @@
-"""Plot a selected seed's field energy from the included reduced diagnostics."""
-import argparse
+
 from pathlib import Path
 import os
-ROOT=Path(__file__).resolve().parent
-os.environ.setdefault('MPLCONFIGDIR',str(ROOT/'.matplotlib_cache'))
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 
+folder = Path(__file__).resolve().parent
+data_root = Path(os.environ.get("TWOSTREAM_DATA_ROOT", folder)).resolve()
 
-def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--data',type=Path,default=ROOT/'data/reduced')
-    p.add_argument('--seed',type=int,default=1)
-    p.add_argument('--output',type=Path,default=ROOT/'outputs/field_energy.png')
-    args=p.parse_args()
-    data=np.loadtxt(args.data/f'seed_{args.seed}'/'FieldEnergy.txt',comments='#',ndmin=2)
-    fig,axes=plt.subplots(1,2,figsize=(11,4.5))
-    axes[0].plot(data[:,1]*1e9,data[:,3])
-    valid=data[:,3]>0;axes[1].semilogy(data[valid,1]*1e9,data[valid,3])
-    for ax,title in zip(axes,['Linear scale','Logarithmic scale']):
-        ax.set(xlabel='Time (ns)',ylabel=r'Electric energy per area (J m$^{-2}$)',title=title)
-        ax.grid(alpha=.25)
-    fig.suptitle(f'Seed {args.seed}');fig.tight_layout()
-    args.output.parent.mkdir(parents=True,exist_ok=True)
-    fig.savefig(args.output,dpi=150);print('Saved:',args.output.resolve())
+data = np.loadtxt(
+    data_root / "diags/reducedfiles/FieldEnergy.txt",
+    comments="#"
+)
 
+steps = data[:, 0]
+time_ns = data[:, 1] * 1e9
+E_energy = data[:, 3]
+B_energy = data[:, 4]
 
-if __name__=='__main__':main()
+fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+# Full electric-field energy evolution
+axes[0].plot(time_ns, E_energy, color="royalblue")
+axes[0].set_xlabel("Time (ns)")
+axes[0].set_ylabel("Electric-field energy (J)")
+axes[0].set_title("Field Energy — Linear Scale")
+axes[0].grid(alpha=0.3)
+
+# Logarithmic scale for exponential growth
+mask = E_energy > 0
+
+axes[1].semilogy(
+    time_ns[mask],
+    E_energy[mask],
+    color="royalblue"
+)
+axes[1].set_xlabel("Time (ns)")
+axes[1].set_ylabel("Electric-field energy (J)")
+axes[1].set_title("Field Energy — Log Scale")
+axes[1].grid(alpha=0.3)
+
+fig.tight_layout()
+fig.savefig(folder / "field_energy.png", dpi=300)
+
+print("Final electric energy:", E_energy[-1], "J")
+print("Maximum magnetic energy:", np.max(B_energy), "J")
+
+plt.show()
